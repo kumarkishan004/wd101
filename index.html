@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            border-radius: 50px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(237, 3, 3, 0.1);
+            margin-bottom: 20px;
+            width: 500px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #efe9e2;
+            color: rgb(25, 211, 96);
+            padding: 10px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table,
+        th,
+        td {
+            border: 8px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #error-message {
+            color: rgb(10, 7, 68);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form id="registrationForm" onsubmit="submitForm(event)">
+        <h2>Registration Form</h2>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter a name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter an email" name="email" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Create a password" name="password" required>
+
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" placeholder="Enter a dob" name="dob" required>
+
+        <input type="checkbox" id="terms" name="terms" required>
+        <label for="terms">Accept Terms & Conditions</label>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="error-message"></div>
+
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Dob</th>
+                <th>Accepted Terms?</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadEntriesFromLocalStorage);
+
+        function submitForm(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const dob = document.getElementById('dob').value;
+            const terms = document.getElementById('terms').checked;
+
+            if (!validateAge(dob)) {
+                document.getElementById('error-message').textContent = 'Please enter a valid date of birth between the ages of 18 and 55.';
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                document.getElementById('error-message').textContent = 'Please enter a valid email address.';
+                return;
+            }
+
+            document.getElementById('error-message').textContent = '';
+
+            const cells = [name, email, password, dob, terms];
+            addEntryToTable(cells);
+            saveEntryToLocalStorage(cells);
+
+            document.getElementById('registrationForm').reset();
+        }
+
+        function validateAge(dob) {
+            const currentDate = new Date();
+            const userDOB = new Date(dob);
+            const age = currentDate.getFullYear() - userDOB.getFullYear();
+            return age >= 18 && age <= 55;
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function saveEntryToLocalStorage(cells) {
+            const entries = JSON.parse(localStorage.getItem('userEntries')) || [];
+            entries.push(cells);
+            localStorage.setItem('userEntries', JSON.stringify(entries));
+        }
+
+        function loadEntriesFromLocalStorage() {
+            const entries = JSON.parse(localStorage.getItem('userEntries')) || [];
+            entries.forEach((entry) => {
+                addEntryToTable(entry);
+            });
+        }
+
+        function addEntryToTable(cells) {
+            const userTableBody = document.getElementById('userTable').querySelector('tbody');
+            const newRow = userTableBody.insertRow();
+
+            cells.forEach((cellData, index) => {
+                const cell = newRow.insertCell(index);
+                cell.textContent = cellData;
+            });
+        }
+    </script>
+
+</body>
+
+</html>
